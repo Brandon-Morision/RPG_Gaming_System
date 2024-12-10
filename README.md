@@ -1,13 +1,14 @@
-RPG Battle Game - README
+RPG Battle Game 
+
 Introduction
-This is a simple command-line role-playing game (RPG) where the player controls a character and engages in turn-based battles against enemies. The player can choose from different actions such as attacking, using special moves, and utilizing items from an inventory. The game includes a leveling system where the player can gain experience and become stronger.
+This is a command-line role-playing game (RPG) where the user controls a character and fights foes in turn-based combat. The options available to the player include attacking, employing special techniques, and using inventory items. Through the game's leveling system, players can advance in strength and experience.
 
 Features
-Character Customization: The player can name their character.
-Turn-based Combat: Fight against enemies with options to attack, use special moves, and use items.
-Inventory System: Collect and use items like health potions and attack boosts.
-Leveling System: Gain experience points (XP) after each battle to level up.
-Special Moves: Each character has a unique special move that can be used after a cooldown.
+Character Personalization: The user has the option to give their character a name.
+Combat is turn-based; you can strike, execute special techniques, and use objects to combat your adversaries.
+Inventory System: Gather and utilize things such as attack enhancements and healing potions.
+Leveling System: After every combat, get experience points (XP) to advance in level.
+Special Moves: Following a cooldown, each character can use a different special move.
 Dynamic AI: Enemies make decisions during combat, choosing between regular attacks and special moves.
 Requirements
 C++ compiler (e.g., g++)
@@ -30,14 +31,14 @@ Each battle is between the player and a Mage.
 The player has a turn to choose an action:
 Regular attack.
 Special move (after cooldown).
-Use item from inventory (e.g., Health Potion, Attack Boost).
-The Mage will choose its action based on a simple AI, using either an attack or special move.
-A health bar is displayed during the battle showing the current health of both the player and the enemy.
+Use items from inventory (e.g., Health Potion, Attack Boost).
+The Mage will choose its action based on a simple AI, using either an attack or a special move.
+During the battle, a health bar shows the current health of the player and the enemy.
 3. Inventory System
 The player starts with a set of items in their inventory: Health Potion, Attack Boost, Shield, and Mana Potion.
 Items can be used during battle to heal or boost attack power.
 4. Leveling Up
-After each battle, the player gains experience. Upon reaching a certain amount of XP, the player levels up, which increases health, attack power, and replenishes the inventory.
+After each battle, the player gains experience. Upon reaching a certain amount of XP, the player levels up, which increases health, and attack power, and replenishes the inventory.
 5. Game Menu
 Main Menu options:
 Start Battle: Begin a battle with enemies.
