@@ -5,23 +5,23 @@
 #include <fstream>
 using namespace std;
 
-// Base class: Character
+
 class Character {
 protected:
     string name;
     int health;
     int attackPower;
-    int specialCooldown; // Tracks turns left until special move is available
+    int specialCooldown;
 
 public:
     Character(string n, int h, int a) : name(n), health(h), attackPower(a), specialCooldown(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; // Ensure health does not drop below zero
+        health = h > 0 ? h : 0;
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
+        attackPower = a > 0 ? a : attackPower;
     }
 
     virtual void attack(Character &opponent) {
@@ -29,7 +29,7 @@ public:
         cout << name << " attacks " << opponent.getName() << " for " << attackPower << " damage!" << endl;
     }
 
-    virtual void specialMove(Character &opponent) = 0; // Pure virtual method
+    virtual void specialMove(Character &opponent) = 0; 
 
     bool isAlive() const {
         return health > 0;
@@ -72,11 +72,11 @@ public:
         opponent.setHealth(opponent.getHealth() - damage);
         cout << name << " performs a Heavy Strike on " << opponent.getName()
              << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(2); // Set cooldown for 2 turns
+        setSpecialCooldown(2); 
     }
 };
 
-// Derived class: Mage
+
 class Mage : public Character {
 public:
     Mage(string n, int h, int a) : Character(n, h, a) {}
@@ -90,7 +90,6 @@ public:
     }
 };
 
-// Inventory class remains the same
 class Inventory {
 private:
     vector<string> items;
@@ -133,7 +132,7 @@ public:
     }
 };
 
-// Battle System with cooldown logic
+
 void battle(Character &player, Character &enemy, Inventory &playerInventory) {
     cout << "Battle starts between " << player.getName() << " and " << enemy.getName() << "!" << endl;
 
@@ -169,13 +168,13 @@ void battle(Character &player, Character &enemy, Inventory &playerInventory) {
                 break;
         }
 
-        // Check if enemy is defeated
+        
         if (!enemy.isAlive()) {
             cout << enemy.getName() << " is defeated! You win the battle!" << endl;
             break;
         }
 
-        // Enemy attacks
+        
         enemy.attack(player);
 
         // Check if player is defeated
@@ -184,13 +183,13 @@ void battle(Character &player, Character &enemy, Inventory &playerInventory) {
             break;
         }
 
-        // Reduce cooldowns
+        
         player.reduceCooldown();
         enemy.reduceCooldown();
     }
 }
 
-// Main function
+
 int main() {
     cout << "Welcome to the RPG Gaming System!" << endl;
 
