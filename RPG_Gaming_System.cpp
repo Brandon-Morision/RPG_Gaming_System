@@ -5,13 +5,15 @@
 #include <iomanip>
 #include <chrono>
 #include <thread>
+#include <cstdlib>
 using namespace std;
 
+// Utility for delays
 void delay(int milliseconds) {
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
 
-
+// Utility for styled borders
 void printBorder(const string &title = "") {
     int width = 50;
     cout << string(width, '=') << endl;
@@ -21,7 +23,7 @@ void printBorder(const string &title = "") {
     }
 }
 
-
+// Utility for styled text
 void printStyled(const string &text, const string &style = "") {
     if (style == "bold") {
         cout << "\033[1m" << text << "\033[0m";
@@ -32,22 +34,23 @@ void printStyled(const string &text, const string &style = "") {
     }
 }
 
+// Base class: Character
 class Character {
 protected:
     string name;
     int health;
     int attackPower;
-    int specialCooldown; 
+    int specialCooldown; // Tracks turns left until special move is available
 
 public:
     Character(string n, int h, int a) : name(n), health(h), attackPower(a), specialCooldown(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; 
+        health = h > 0 ? h : 0; // Ensure health does not drop below zero
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; 
+        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
     }
 
     virtual void attack(Character &opponent) {
@@ -55,7 +58,7 @@ public:
         cout << name << " attacks " << opponent.getName() << " for " << attackPower << " damage!" << endl;
     }
 
-    virtual void specialMove(Character &opponent) = 0;
+    virtual void specialMove(Character &opponent) = 0; // Pure virtual method
 
     bool isAlive() const {
         return health > 0;
@@ -98,11 +101,11 @@ public:
         opponent.setHealth(opponent.getHealth() - damage);
         cout << name << " performs a Heavy Strike on " << opponent.getName()
              << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(2); 
+        setSpecialCooldown(2); // Set cooldown for 2 turns
     }
 };
 
-
+// Derived class: Mage
 class Mage : public Character {
 public:
     Mage(string n, int h, int a) : Character(n, h, a) {}
@@ -114,9 +117,17 @@ public:
              << " for " << damage << " damage!" << endl;
         setSpecialCooldown(3); // Set cooldown for 3 turns
     }
+
+    void makeDecision(Character &player) {
+        if (canUseSpecialMove() && (rand() % 2 == 0 || player.getHealth() < attackPower + 10)) {
+            specialMove(player);
+        } else {
+            attack(player);
+        }
+    }
 };
 
-
+// Inventory class
 class Inventory {
 private:
     vector<string> items;
@@ -158,15 +169,22 @@ public:
     }
 };
 
-
+// Player class with leveling system
 class Player : public Warrior {
 private:
     int level;
     int experience;
     int experienceToNextLevel;
+    Inventory inventory;
 
 public:
-    Player(string n, int h, int a) : Warrior(n, h, a), level(1), experience(0), experienceToNextLevel(50) {}
+    Player(string n, int h, int a) : Warrior(n, h, a), level(1), experience(0), experienceToNextLevel(50) {
+        // Initialize inventory with items
+        inventory.addItem("Health Potion");
+        inventory.addItem("Attack Boost");
+        inventory.addItem("Shield");
+        inventory.addItem("Mana Potion");
+    }
 
     void gainExperience(int xp) {
         experience += xp;
@@ -179,10 +197,15 @@ public:
     void levelUp() {
         level++;
         experience -= experienceToNextLevel;
-        experienceToNextLevel += 20; 
-        setHealth(getHealth() + 20); 
-        setAttackPower(getAttackPower() + 5); 
+        experienceToNextLevel += 20; // Increase XP needed for next level
+        setHealth(getHealth() + 20); // Increase health
+        setAttackPower(getAttackPower() + 5); // Increase attack power
         cout << "\nCongratulations! " << name << " has leveled up to Level " << level << "!" << endl;
+        // Replenish inventory on level up
+        inventory.addItem("Health Potion");
+        inventory.addItem("Attack Boost");
+        inventory.addItem("Shield");
+        inventory.addItem("Mana Potion");
     }
 
     int getLevel() const {
@@ -196,10 +219,14 @@ public:
     int getExperienceToNextLevel() const {
         return experienceToNextLevel;
     }
+
+    Inventory& getInventory() {
+        return inventory;
+    }
 };
 
-
-void battle(Player &player, vector<Mage> &enemies, Inventory &playerInventory) {
+// Battle System with dynamic AI
+void battle(Player &player, vector<Mage> &enemies) {
     printBorder("Battle Begins!");
 
     for (size_t i = 0; i < enemies.size(); ++i) {
@@ -208,12 +235,14 @@ void battle(Player &player, vector<Mage> &enemies, Inventory &playerInventory) {
         printBorder();
 
         while (player.isAlive() && enemy.isAlive()) {
-            
+            // Display health bars
             cout << "\n";
-            cout << left << setw(20) << player.getName() << "| Health: [" << string(player.getHealth() / 5, '#') << string((100 - player.getHealth()) / 5, ' ') << "] " << player.getHealth() << endl;
-            cout << left << setw(20) << enemy.getName() << "| Health: [" << string(enemy.getHealth() / 5, '#') << string((100 - enemy.getHealth()) / 5, ' ') << "] " << enemy.getHealth() << endl;
+            cout << left << setw(20) << player.getName() << "| Health: [" << string(player.getHealth() / 5, '#') 
+                 << string((100 - player.getHealth()) / 5, ' ') << "] " << player.getHealth() << endl;
+            cout << left << setw(20) << enemy.getName() << "| Health: [" << string(enemy.getHealth() / 5, '#') 
+                 << string((100 - enemy.getHealth()) / 5, ' ') << "] " << enemy.getHealth() << endl;
 
-            
+            // Player's turn
             cout << "\nYour turn! Choose an action:\n1) Regular Attack\n2) Special Move\n3) Use Item\n";
             int choice;
             cin >> choice;
@@ -230,11 +259,11 @@ void battle(Player &player, vector<Mage> &enemies, Inventory &playerInventory) {
                     }
                     break;
                 case 3: {
-                    playerInventory.showInventory();
+                    player.getInventory().showInventory();
                     cout << "Choose an item number to use: ";
                     int itemChoice;
                     cin >> itemChoice;
-                    playerInventory.useItem(itemChoice, player);
+                    player.getInventory().useItem(itemChoice, player);
                     break;
                 }
                 default:
@@ -242,49 +271,71 @@ void battle(Player &player, vector<Mage> &enemies, Inventory &playerInventory) {
                     break;
             }
 
-            
+            // Check if enemy is defeated
             if (!enemy.isAlive()) {
                 cout << enemy.getName() << " is defeated! You gain 20 XP!" << endl;
                 player.gainExperience(20);
                 break;
             }
 
-            
-            cout << "\nEnemy's turn!" << endl;
-            enemy.attack(player);
+            // Enemy's turn
+            cout << "\n" << enemy.getName() << "'s turn!" << endl;
+            enemy.makeDecision(player);
 
-            
+            // Check if player is defeated
             if (!player.isAlive()) {
-                cout << player.getName() << " is defeated! Game Over!" << endl;
-                return;
+                cout << "\nYou were defeated by " << enemy.getName() << "!" << endl;
+                return; // End battle if player is defeated
             }
 
-            
+            // Reduce cooldowns for both
             player.reduceCooldown();
             enemy.reduceCooldown();
         }
+
+        if (!player.isAlive()) {
+            break; // Stop further battles if player is defeated
+        }
     }
 
-    printBorder("Battle Over");
-    cout << "You defeated all enemies! Congratulations, " << player.getName() << "!" << endl;
+    if (player.isAlive()) {
+        cout << "\nCongratulations! You defeated all enemies!" << endl;
+        printBorder("Victory");
+    }
 }
 
-
+// Main function with game loop
 int main() {
-    printBorder("Welcome to the RPG Gaming System!");
+    string playerName;
+    cout << "Enter your character's name: ";
+    getline(cin, playerName);
 
-    Player player("Hero", 100, 15);
-    vector<Mage> enemies = {
-        Mage("Dark Wizard", 80, 12),
-        Mage("Necromancer", 90, 14),
-        Mage("Archmage", 100, 16)
-    };
+    Player player(playerName, 100, 15);
+    vector<Mage> enemies = {Mage("Fire Mage", 80, 12), Mage("Ice Mage", 90, 14)};
 
-    Inventory playerInventory;
-    playerInventory.addItem("Health Potion");
-    playerInventory.addItem("Attack Boost");
+    bool running = true;
 
-    battle(player, enemies, playerInventory);
+    while (running) {
+        cout << "\nMain Menu:\n1) Start Battle\n2) View Inventory\n3) Exit Game\n";
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                battle(player, enemies);
+                break;
+            case 2:
+                player.getInventory().showInventory();
+                break;
+            case 3:
+                cout << "Thank you for playing! Exiting the game.\n";
+                running = false;
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    }
 
     return 0;
 }
