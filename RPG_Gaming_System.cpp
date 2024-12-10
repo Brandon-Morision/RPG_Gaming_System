@@ -167,6 +167,10 @@ public:
     vector<string> getItems() const {
         return items;
     }
+
+    void clear() {
+        items.clear();
+    }
 };
 
 // Player class with leveling system
@@ -179,11 +183,7 @@ private:
 
 public:
     Player(string n, int h, int a) : Warrior(n, h, a), level(1), experience(0), experienceToNextLevel(50) {
-        // Initialize inventory with items
-        inventory.addItem("Health Potion");
-        inventory.addItem("Attack Boost");
-        inventory.addItem("Shield");
-        inventory.addItem("Mana Potion");
+        initializeInventory();
     }
 
     void gainExperience(int xp) {
@@ -202,6 +202,20 @@ public:
         setAttackPower(getAttackPower() + 5); // Increase attack power
         cout << "\nCongratulations! " << name << " has leveled up to Level " << level << "!" << endl;
         // Replenish inventory on level up
+        initializeInventory();
+    }
+
+    void reset() {
+        setHealth(100);
+        setAttackPower(15);
+        level = 1;
+        experience = 0;
+        experienceToNextLevel = 50;
+        initializeInventory();
+    }
+
+    void initializeInventory() {
+        inventory.clear();
         inventory.addItem("Health Potion");
         inventory.addItem("Attack Boost");
         inventory.addItem("Shield");
@@ -264,7 +278,7 @@ void battle(Player &player, vector<Mage> &enemies) {
                     int itemChoice;
                     cin >> itemChoice;
                     player.getInventory().useItem(itemChoice, player);
-                    break;
+                                        break;
                 }
                 default:
                     cout << "Invalid choice! Turn skipped." << endl;
@@ -310,18 +324,19 @@ int main() {
     cout << "Enter your character's name: ";
     getline(cin, playerName);
 
-    Player player(playerName, 100, 15);
-    vector<Mage> enemies = {Mage("Fire Mage", 80, 12), Mage("Ice Mage", 90, 14)};
-
     bool running = true;
 
     while (running) {
+        Player player(playerName, 100, 15); // Reset player at the beginning of each game
+        vector<Mage> enemies = {Mage("Fire Mage", 80, 12), Mage("Ice Mage", 90, 14)};
+
         cout << "\nMain Menu:\n1) Start Battle\n2) View Inventory\n3) Exit Game\n";
         int choice;
         cin >> choice;
 
         switch (choice) {
             case 1:
+                player.reset(); // Ensure player's state is reset before starting a new battle
                 battle(player, enemies);
                 break;
             case 2:
