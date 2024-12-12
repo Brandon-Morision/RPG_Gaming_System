@@ -117,7 +117,7 @@ public:
     }
 };
 
-// Derived class: Warrior
+//The derived class: Warrior
 class Warrior : public Character {
 public:
     Warrior(string n, int h, int a) : Character(n, h, a) {}
