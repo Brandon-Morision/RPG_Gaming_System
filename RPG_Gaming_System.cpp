@@ -287,7 +287,7 @@ public:
     }
 };
 
-// Battle logic
+
 void battle(Player &player, vector<Mage> &enemies) {
     printBorder("Battle Begins!");
 
