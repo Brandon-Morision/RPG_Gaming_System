@@ -7,9 +7,10 @@
 #include <chrono>
 #include <thread>
 #include <cstdlib>
+#include <exception>
 using namespace std;
 
-// Utility for delays
+
 void delay(int milliseconds) {
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
@@ -167,22 +168,26 @@ public:
     }
 
     void useItem(int choice, Character &player) {
-        if (choice > 0 && choice <= items.size()) {
-            string item = items[choice - 1];
-            if (item == "Health Potion") {
-                player.setHealth(min(player.getHealth() + 20, player.getMaxHealth()));
-                items.erase(items.begin() + choice - 1);
-                cout << "Used " << item << ". Health increased by 20!" << endl;
-                playSoundEffect("heal");
-            } else if (item == "Attack Boost") {
-                player.setAttackPower(player.getAttackPower() + 10);
-                items.erase(items.begin() + choice - 1);
-                cout << "Used " << item << ". Attack power increased by 10!" << endl;
+        try {
+            if (choice > 0 && choice <= items.size()) {
+                string item = items[choice - 1];
+                if (item == "Health Potion") {
+                    player.setHealth(min(player.getHealth() + 20, player.getMaxHealth()));
+                    items.erase(items.begin() + choice - 1);
+                    cout << "Used " << item << ". Health increased by 20!" << endl;
+                    playSoundEffect("heal");
+                } else if (item == "Attack Boost") {
+                    player.setAttackPower(player.getAttackPower() + 10);
+                    items.erase(items.begin() + choice - 1);
+                    cout << "Used " << item << ". Attack power increased by 10!" << endl;
+                } else {
+                    throw invalid_argument("Invalid item effect!");
+                }
             } else {
-                cout << "Cannot use " << item << "!" << endl;
+                throw out_of_range("Invalid item selection!");
             }
-        } else {
-            cout << "Invalid item selection!" << endl;
+        } catch (const exception &e) {
+            cout << "Error: " << e.what() << endl;
         }
     }
 
@@ -250,20 +255,30 @@ public:
     }
 
     void saveProgress() {
-        ofstream saveFile("savegame.txt");
-        saveFile << name << "\n" << health << "\n" << attackPower << "\n" << level << "\n" << experience << "\n" << experienceToNextLevel << "\n";
-        saveFile.close();
-        cout << "Progress saved!" << endl;
+        try {
+            ofstream saveFile("savegame.txt");
+            if (!saveFile.is_open()) {
+                throw runtime_error("Unable to open save file.");
+            }
+            saveFile << name << "\n" << health << "\n" << attackPower << "\n" << level << "\n" << experience << "\n" << experienceToNextLevel << "\n";
+            saveFile.close();
+            cout << "Progress saved!" << endl;
+        } catch (const exception &e) {
+            cout << "Error saving progress: " << e.what() << endl;
+        }
     }
 
     void loadProgress() {
-        ifstream saveFile("savegame.txt");
-        if (saveFile.is_open()) {
+        try {
+            ifstream saveFile("savegame.txt");
+            if (!saveFile.is_open()) {
+                throw runtime_error("No save file found. Starting a new game.");
+            }
             saveFile >> name >> health >> attackPower >> level >> experience >> experienceToNextLevel;
             saveFile.close();
             cout << "Progress loaded!" << endl;
-        } else {
-            cout << "No save file found. Starting a new game." << endl;
+        } catch (const exception &e) {
+            cout << "Error loading progress: " << e.what() << endl;
         }
     }
 
@@ -293,31 +308,43 @@ void battle(Player &player, vector<Mage> &enemies) {
 
             cout << "\nYour turn! Choose an action:\n1) Regular Attack\n2) Special Move\n3) Defend\n4) Use Item\n";
             int choice;
-            cin >> choice;
-
-            switch (choice) {
-            case 1:
-                player.attack(enemy);
-                break;
-            case 2:
-                if (player.canUseSpecialMove()) {
-                    player.specialMove(enemy);
-                } else {
-                    cout << "Special move is on cooldown!" << endl;
+            try {
+                cin >> choice;
+                if (cin.fail()) {
+                    throw invalid_argument("Invalid input. Please enter a number.");
                 }
-                break;
-            case 3:
-                player.defend();
-                break;
-            case 4:
-                player.getInventory().showInventory();
-                cout << "Select an item to use: ";
-                int itemChoice;
-                cin >> itemChoice;
-                player.getInventory().useItem(itemChoice, player);
-                break;
-            default:
-                cout << "Invalid action!" << endl;
+
+                switch (choice) {
+                case 1:
+                    player.attack(enemy);
+                    break;
+                case 2:
+                    if (player.canUseSpecialMove()) {
+                        player.specialMove(enemy);
+                    } else {
+                        cout << "Special move is on cooldown!" << endl;
+                    }
+                    break;
+                case 3:
+                    player.defend();
+                    break;
+                case 4:
+                    player.getInventory().showInventory();
+                    cout << "Select an item to use: ";
+                    int itemChoice;
+                    cin >> itemChoice;
+                    if (cin.fail()) {
+                        throw invalid_argument("Invalid input. Please enter a valid item number.");
+                    }
+                    player.getInventory().useItem(itemChoice, player);
+                    break;
+                default:
+                    throw out_of_range("Invalid action! Please select a valid option.");
+                }
+            } catch (const exception &e) {
+                cout << "Error: " << e.what() << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
 
             if (enemy.isAlive()) {
@@ -344,40 +371,54 @@ void mainMenu() {
     while (true) {
         cout << "\nMain Menu:\n1) Start New Game\n2) Load Game\n3) Instructions\n4) Exit\n";
         int choice;
-        cin >> choice;
-
-        switch (choice) {
-        case 1:
-            player.reset();
-            battle(player, enemies);
-            if (player.isAlive()) {
-                cout << "Congratulations! You have defeated all enemies!" << endl;
+        try {
+            cin >> choice;
+            if (cin.fail()) {
+                throw invalid_argument("Invalid input. Please enter a number.");
             }
-            break;
-        case 2:
-            player.loadProgress();
-            battle(player, enemies);
-            break;
-        case 3:
-            cout << "Instructions: Defeat all enemies to win. Use items and strategies wisely!" << endl;
-            break;
-        case 4:
-            cout << "Exiting game. Goodbye!" << endl;
-            return;
-        default:
-            cout << "Invalid choice! Please select again." << endl;
-        }
 
-        cout << "Would you like to save your progress? (1 for Yes, 0 for No): ";
-        int saveChoice;
-        cin >> saveChoice;
-        if (saveChoice == 1) {
-            player.saveProgress();
+            switch (choice) {
+            case 1:
+                player.reset();
+                battle(player, enemies);
+                if (player.isAlive()) {
+                    cout << "Congratulations! You have defeated all enemies!" << endl;
+                }
+                break;
+            case 2:
+                player.loadProgress();
+                battle(player, enemies);
+                if (player.isAlive()) {
+                    cout << "Congratulations! You have defeated all enemies!" << endl;
+                }
+                break;
+            case 3:
+                printBorder("Instructions");
+                cout << "1) Use options in battles to attack, defend, or use items.\n";
+                cout << "2) Earn XP to level up and enhance your abilities.\n";
+                cout << "3) Save progress to continue your journey later.\n";
+                cout << "4) Survive and defeat all enemies to win the game!\n";
+                break;
+            case 4:
+                cout << "Exiting the game. Goodbye!" << endl;
+                return;
+            default:
+                throw out_of_range("Invalid menu choice! Please select a valid option.");
+            }
+        } catch (const exception &e) {
+            cout << "Error: " << e.what() << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
 }
 
 int main() {
-    mainMenu();
+    try {
+        mainMenu();
+    } catch (const exception &e) {
+        cout << "Unexpected error: " << e.what() << endl;
+    }
     return 0;
 }
+ 
