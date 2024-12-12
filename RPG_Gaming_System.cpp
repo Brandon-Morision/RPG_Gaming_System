@@ -42,7 +42,7 @@ void playSoundEffect(const string &sound) {
     }
 }
 
-// Base class: Character
+//The base class: Character
 class Character {
 protected:
     string name;
