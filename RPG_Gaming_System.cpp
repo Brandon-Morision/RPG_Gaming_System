@@ -8,12 +8,10 @@
 #include <cstdlib>
 using namespace std;
 
-// Utility for delays
 void delay(int milliseconds) {
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
 
-// Utility for styled borders
 void printBorder(const string &title = "") {
     int width = 50;
     cout << string(width, '=') << endl;
@@ -23,7 +21,6 @@ void printBorder(const string &title = "") {
     }
 }
 
-// Utility for styled text
 void printStyled(const string &text, const string &style = "") {
     if (style == "bold") {
         cout << "\033[1m" << text << "\033[0m";
@@ -34,23 +31,23 @@ void printStyled(const string &text, const string &style = "") {
     }
 }
 
-// Base class: Character
+// This is the base class: Character
 class Character {
 protected:
     string name;
     int health;
     int attackPower;
-    int specialCooldown; // Tracks turns left until special move is available
+    int specialCooldown; 
 
 public:
     Character(string n, int h, int a) : name(n), health(h), attackPower(a), specialCooldown(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; // Ensure health does not drop below zero
+        health = h > 0 ? h : 0; 
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
+        attackPower = a > 0 ? a : attackPower; 
     }
 
     virtual void attack(Character &opponent) {
@@ -58,7 +55,7 @@ public:
         cout << name << " attacks " << opponent.getName() << " for " << attackPower << " damage!" << endl;
     }
 
-    virtual void specialMove(Character &opponent) = 0; // Pure virtual method
+    virtual void specialMove(Character &opponent) = 0; 
 
     bool isAlive() const {
         return health > 0;
@@ -91,7 +88,7 @@ public:
     }
 };
 
-// Derived class: Warrior
+// This is the derived class: Warrior
 class Warrior : public Character {
 public:
     Warrior(string n, int h, int a) : Character(n, h, a) {}
@@ -101,11 +98,11 @@ public:
         opponent.setHealth(opponent.getHealth() - damage);
         cout << name << " performs a Heavy Strike on " << opponent.getName()
              << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(2); // Set cooldown for 2 turns
+        setSpecialCooldown(2); // The special move is set to cooldown for 2 turns
     }
 };
 
-// Derived class: Mage
+// Another derived class: Mage
 class Mage : public Character {
 public:
     Mage(string n, int h, int a) : Character(n, h, a) {}
@@ -115,7 +112,7 @@ public:
         opponent.setHealth(opponent.getHealth() - damage);
         cout << name << " casts Fireball on " << opponent.getName()
              << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(3); // Set cooldown for 3 turns
+        setSpecialCooldown(3); 
     }
 
     void makeDecision(Character &player) {
@@ -127,7 +124,7 @@ public:
     }
 };
 
-// Inventory class
+
 class Inventory {
 private:
     vector<string> items;
@@ -173,7 +170,7 @@ public:
     }
 };
 
-// Player class with leveling system
+
 class Player : public Warrior {
 private:
     int level;
@@ -197,11 +194,11 @@ public:
     void levelUp() {
         level++;
         experience -= experienceToNextLevel;
-        experienceToNextLevel += 20; // Increase XP needed for next level
-        setHealth(getHealth() + 20); // Increase health
-        setAttackPower(getAttackPower() + 5); // Increase attack power
+        experienceToNextLevel += 20; 
+        setHealth(getHealth() + 20);
+        setAttackPower(getAttackPower() + 5); 
         cout << "\nCongratulations! " << name << " has leveled up to Level " << level << "!" << endl;
-        // Replenish inventory on level up
+        
         initializeInventory();
     }
 
@@ -239,7 +236,7 @@ public:
     }
 };
 
-// Battle System with dynamic AI
+
 void battle(Player &player, vector<Mage> &enemies) {
     printBorder("Battle Begins!");
 
@@ -249,14 +246,14 @@ void battle(Player &player, vector<Mage> &enemies) {
         printBorder();
 
         while (player.isAlive() && enemy.isAlive()) {
-            // Display health bars
+            
             cout << "\n";
             cout << left << setw(20) << player.getName() << "| Health: [" << string(player.getHealth() / 5, '#') 
                  << string((100 - player.getHealth()) / 5, ' ') << "] " << player.getHealth() << endl;
             cout << left << setw(20) << enemy.getName() << "| Health: [" << string(enemy.getHealth() / 5, '#') 
                  << string((100 - enemy.getHealth()) / 5, ' ') << "] " << enemy.getHealth() << endl;
 
-            // Player's turn
+            
             cout << "\nYour turn! Choose an action:\n1) Regular Attack\n2) Special Move\n3) Use Item\n";
             int choice;
             cin >> choice;
@@ -285,30 +282,30 @@ void battle(Player &player, vector<Mage> &enemies) {
                     break;
             }
 
-            // Check if enemy is defeated
+            
             if (!enemy.isAlive()) {
                 cout << enemy.getName() << " is defeated! You gain 20 XP!" << endl;
                 player.gainExperience(20);
                 break;
             }
 
-            // Enemy's turn
+            
             cout << "\n" << enemy.getName() << "'s turn!" << endl;
             enemy.makeDecision(player);
 
-            // Check if player is defeated
+            
             if (!player.isAlive()) {
                 cout << "\nYou were defeated by " << enemy.getName() << "!" << endl;
-                return; // End battle if player is defeated
+                return; 
             }
 
-            // Reduce cooldowns for both
+            
             player.reduceCooldown();
             enemy.reduceCooldown();
         }
 
         if (!player.isAlive()) {
-            break; // Stop further battles if player is defeated
+            break;
         }
     }
 
@@ -318,7 +315,6 @@ void battle(Player &player, vector<Mage> &enemies) {
     }
 }
 
-// Main function with game loop
 int main() {
     string playerName;
     cout << "Enter your character's name: ";
@@ -336,7 +332,7 @@ int main() {
 
         switch (choice) {
             case 1:
-                player.reset(); // Ensure player's state is reset before starting a new battle
+                player.reset(); // This ensures the player's state is reset before starting a new battle
                 battle(player, enemies);
                 break;
             case 2:
