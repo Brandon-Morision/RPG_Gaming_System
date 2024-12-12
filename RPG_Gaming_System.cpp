@@ -15,7 +15,6 @@ void delay(int milliseconds) {
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
 
-// Utility for styled borders
 void printBorder(const string &title = "") {
     int width = 50;
     cout << string(width, '=') << endl;
@@ -25,7 +24,6 @@ void printBorder(const string &title = "") {
     }
 }
 
-// Utility for styled text
 void printStyled(const string &text, const string &style = "") {
     if (style == "bold") {
         cout << "\033[1m" << text << "\033[0m";
@@ -36,7 +34,6 @@ void printStyled(const string &text, const string &style = "") {
     }
 }
 
-// Utility for sound effects (ASCII placeholder)
 void playSoundEffect(const string &sound) {
     if (sound == "attack") {
         cout << "\U0001F5E1 Sword clashing sound effect\n";
@@ -52,19 +49,19 @@ protected:
     int health;
     int maxHealth;
     int attackPower;
-    int specialCooldown; // Tracks turns left until special move is available
-    int defense;         // Tracks damage reduction for the next turn
+    int specialCooldown; 
+    int defense;
 
 public:
     Character(string n, int h, int a)
         : name(n), health(h), maxHealth(h), attackPower(a), specialCooldown(0), defense(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; // Ensure health does not drop below zero
+        health = h > 0 ? h : 0; 
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
+        attackPower = a > 0 ? a : attackPower; 
     }
 
     virtual void attack(Character &opponent) {
@@ -75,15 +72,15 @@ public:
 
     void takeDamage(int damage) {
         setHealth(health - max(0, damage - defense));
-        defense = 0; // Reset defense after applying
+        defense = 0; 
     }
 
     void defend() {
-        defense = 10; // Reduce incoming damage by 10
+        defense = 10; 
         cout << name << " assumes a defensive stance, reducing incoming damage!" << endl;
     }
 
-    virtual void specialMove(Character &opponent) = 0; // Pure virtual method
+    virtual void specialMove(Character &opponent) = 0; 
 
     bool isAlive() const {
         return health > 0;
@@ -129,7 +126,7 @@ public:
         int damage = attackPower * 2;
         opponent.takeDamage(damage);
         cout << name << " performs a Heavy Strike on " << opponent.getName() << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(2); // Set cooldown for 2 turns
+        setSpecialCooldown(2); 
     }
 };
 
