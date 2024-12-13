@@ -15,6 +15,7 @@ void delay(int milliseconds) {
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
 }
 
+// This utility delays for styled borders
 void printBorder(const string &title = "") {
     int width = 50;
     cout << string(width, '=') << endl;
@@ -24,6 +25,7 @@ void printBorder(const string &title = "") {
     }
 }
 
+// This utility  styles text
 void printStyled(const string &text, const string &style = "") {
     if (style == "bold") {
         cout << "\033[1m" << text << "\033[0m";
@@ -34,6 +36,7 @@ void printStyled(const string &text, const string &style = "") {
     }
 }
 
+// we use this for sound effects (ASCII placeholder)
 void playSoundEffect(const string &sound) {
     if (sound == "attack") {
         cout << "\U0001F5E1 Sword clashing sound effect\n";
@@ -42,26 +45,26 @@ void playSoundEffect(const string &sound) {
     }
 }
 
-//The base class: Character
+// This is the base class: Character
 class Character {
 protected:
     string name;
     int health;
     int maxHealth;
     int attackPower;
-    int specialCooldown; 
-    int defense;
+    int specialCooldown; // Tracks turns left until special move is available
+    int defense;         // Tracks damage reduction for the next turn
 
 public:
     Character(string n, int h, int a)
         : name(n), health(h), maxHealth(h), attackPower(a), specialCooldown(0), defense(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; 
+        health = h > 0 ? h : 0; // Ensure health does not drop below zero
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; 
+        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
     }
 
     virtual void attack(Character &opponent) {
@@ -72,15 +75,15 @@ public:
 
     void takeDamage(int damage) {
         setHealth(health - max(0, damage - defense));
-        defense = 0; 
+        defense = 0; // Reset defense after applying
     }
 
     void defend() {
-        defense = 10; 
+        defense = 10;
         cout << name << " assumes a defensive stance, reducing incoming damage!" << endl;
     }
 
-    virtual void specialMove(Character &opponent) = 0; 
+    virtual void specialMove(Character &opponent) = 0;
 
     bool isAlive() const {
         return health > 0;
@@ -117,7 +120,7 @@ public:
     }
 };
 
-//The derived class: Warrior
+// This is the derived class: Warrior
 class Warrior : public Character {
 public:
     Warrior(string n, int h, int a) : Character(n, h, a) {}
@@ -126,11 +129,11 @@ public:
         int damage = attackPower * 2;
         opponent.takeDamage(damage);
         cout << name << " performs a Heavy Strike on " << opponent.getName() << " for " << damage << " damage!" << endl;
-        setSpecialCooldown(2); 
+        setSpecialCooldown(2); // the cooldown for special move is set 2 turns
     }
 };
 
-// Derived class: Mage
+// Another Derived class: Mage
 class Mage : public Character {
 public:
     Mage(string n, int h, int a) : Character(n, h, a) {}
@@ -153,7 +156,7 @@ public:
     }
 };
 
-// Inventory management
+// Here the inventory is managed
 class Inventory {
 private:
     vector<string> items;
@@ -200,7 +203,7 @@ public:
     }
 };
 
-// Player class
+// The Player class
 class Player : public Warrior {
 private:
     int level;
@@ -284,14 +287,44 @@ public:
     }
 };
 
-//Battle Logic
+// The pauseMenu function
+void pauseMenu(Player &player, vector<Mage> &enemies) {
+    cout << "\n--- Pause Menu ---\n";
+    cout << "1) Save Progress\n2) Return to Main Menu\n3) Exit Game\n";
+    int choice;
+    try {
+        cin >> choice;
+        if (cin.fail()) {
+            throw invalid_argument("Invalid input. Please enter a number.");
+        }
+
+        switch (choice) {
+        case 1:
+            player.saveProgress();
+            break;
+        case 2:
+            cout << "Returning to the Main Menu...\n";
+            return;  
+        case 3:
+            cout << "Exiting the game. Goodbye!\n";
+            exit(0);  
+        default:
+            throw out_of_range("Invalid menu choice! Please select a valid option.");
+        }
+    } catch (const exception &e) {
+        cout << "Error: " << e.what() << endl;
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+// The Battle logic
 void battle(Player &player, vector<Mage> &enemies) {
     printBorder("Battle Begins!");
-
+    
     for (Mage &enemy : enemies) {
         cout << player.getName() << " (Level " << player.getLevel() << ") vs. " << enemy.getName() << endl;
         printBorder();
-
+        
         while (player.isAlive() && enemy.isAlive()) {
             cout << "\n";
             cout << left << setw(20) << player.getName() << "| Health: [" 
@@ -303,7 +336,9 @@ void battle(Player &player, vector<Mage> &enemies) {
                  << string((enemy.getMaxHealth() - enemy.getHealth()) * 20 / enemy.getMaxHealth(), ' ') 
                  << "] " << enemy.getHealth() << "/" << enemy.getMaxHealth() << endl;
 
-            cout << "\nYour turn! Choose an action:\n1) Regular Attack\n2) Special Move\n3) Defend\n4) Use Item\n";
+            // The Pause menu logic
+            cout << "\nYour turn! Choose an action:\n";
+            cout << "1) Regular Attack\n2) Special Move\n3) Defend\n4) Use Item\n5) Pause Game\n";
             int choice;
             try {
                 cin >> choice;
@@ -335,6 +370,9 @@ void battle(Player &player, vector<Mage> &enemies) {
                     }
                     player.getInventory().useItem(itemChoice, player);
                     break;
+                case 5:  
+                    pauseMenu(player, enemies); 
+                    return;  
                 default:
                     throw out_of_range("Invalid action! Please select a valid option.");
                 }
