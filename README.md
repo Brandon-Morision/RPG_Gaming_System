@@ -4,7 +4,6 @@ Introduction
 This is a command-line role-playing game (RPG) where the user controls a character and fights foes in turn-based combat. The options available to the player include attacking, employing special techniques, and using inventory items. Through the game's leveling system, players can advance in strength and experience.
 
 Features
-Character Personalization: The user has the option to give their character a name.
 Combat is turn-based; you can strike, execute special techniques, and use objects to combat your adversaries.
 Inventory System: Gather and utilize things such as attack enhancements and healing potions.
 Leveling System: After every combat, get experience points (XP) to advance in level.
@@ -51,8 +50,10 @@ Level Up: After defeating enemies and gaining enough XP, the player levels up an
 Inventory Management: The player can use items to heal or boost their stats during battle.
 Game Controls
 Main Menu:
-Start Battle
+Play instructions
+Start new game
 View Inventory
+load saved game
 Exit Game
 Battle Options:
 Choose between:
