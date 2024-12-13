@@ -25,7 +25,7 @@ void printBorder(const string &title = "") {
     }
 }
 
-// This utility  styles text
+// This utility  styles text for better UI 
 void printStyled(const string &text, const string &style = "") {
     if (style == "bold") {
         cout << "\033[1m" << text << "\033[0m";
@@ -52,19 +52,19 @@ protected:
     int health;
     int maxHealth;
     int attackPower;
-    int specialCooldown; // Tracks turns left until special move is available
-    int defense;         // Tracks damage reduction for the next turn
+    int specialCooldown; 
+    int defense;         
 
 public:
     Character(string n, int h, int a)
         : name(n), health(h), maxHealth(h), attackPower(a), specialCooldown(0), defense(0) {}
 
     void setHealth(int h) {
-        health = h > 0 ? h : 0; // Ensure health does not drop below zero
+        health = h > 0 ? h : 0; 
     }
 
     void setAttackPower(int a) {
-        attackPower = a > 0 ? a : attackPower; // Prevent setting negative attack power
+        attackPower = a > 0 ? a : attackPower;
     }
 
     virtual void attack(Character &opponent) {
@@ -75,7 +75,7 @@ public:
 
     void takeDamage(int damage) {
         setHealth(health - max(0, damage - defense));
-        defense = 0; // Reset defense after applying
+        defense = 0; 
     }
 
     void defend() {
@@ -287,7 +287,7 @@ public:
     }
 };
 
-// The pauseMenu function
+// The pauseMenu function begins here
 void pauseMenu(Player &player, vector<Mage> &enemies) {
     cout << "\n--- Pause Menu ---\n";
     cout << "1) Save Progress\n2) Return to Main Menu\n3) Exit Game\n";
@@ -317,7 +317,7 @@ void pauseMenu(Player &player, vector<Mage> &enemies) {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 }
-// The Battle logic
+// where Battle logic happens
 void battle(Player &player, vector<Mage> &enemies) {
     printBorder("Battle Begins!");
     
@@ -336,7 +336,7 @@ void battle(Player &player, vector<Mage> &enemies) {
                  << string((enemy.getMaxHealth() - enemy.getHealth()) * 20 / enemy.getMaxHealth(), ' ') 
                  << "] " << enemy.getHealth() << "/" << enemy.getMaxHealth() << endl;
 
-            // The Pause menu logic
+           
             cout << "\nYour turn! Choose an action:\n";
             cout << "1) Regular Attack\n2) Special Move\n3) Defend\n4) Use Item\n5) Pause Game\n";
             int choice;
@@ -397,7 +397,7 @@ void battle(Player &player, vector<Mage> &enemies) {
     }
 }
 
-// Main game loop
+// The main game's loop
 void mainMenu() {
     printBorder("Welcome to the RPG Game");
     Player player("Hero", 100, 15);
