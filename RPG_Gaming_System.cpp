@@ -400,7 +400,17 @@ void battle(Player &player, vector<Mage> &enemies) {
 // The main game's loop
 void mainMenu() {
     printBorder("Welcome to the RPG Game");
-    Player player("Hero", 100, 15);
+    string playerName;
+
+    cout << "Enter your desired name: ";
+    cin.ignore(); // Clear the input buffer in case of any leftover input
+    getline(cin, playerName);
+
+    if (playerName.empty()) {
+        playerName = "Hero"; // Default name if none is provided
+    }
+
+    Player player(playerName, 100, 15);
     vector<Mage> enemies = {Mage("Dark Mage", 50, 10), Mage("Shadow Wizard", 70, 12)};
 
     while (true) {
